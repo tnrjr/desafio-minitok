@@ -94,6 +94,11 @@ db.products.find({ _id: ObjectId("66518ddf401b2a94fb0f3850") })
 }
 ```
 
+- **Respostas:**
+  - `204 OK`: Produto atualizado com sucesso.
+  - `400 Bad Request`: Validação falhou.
+  - `404 Not Foud`: Produto não encontrado
+
 ## Testes
 - Execute `mvn test`
 
