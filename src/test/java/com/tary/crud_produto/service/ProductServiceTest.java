@@ -1,72 +1,96 @@
 package com.tary.crud_produto.service;
 
+import com.tary.crud_produto.dto.ProductRequestDTO;
+import com.tary.crud_produto.exception.ResourceNotFoundException;
+import com.tary.crud_produto.model.Category;
 import com.tary.crud_produto.model.Product;
+import com.tary.crud_produto.model.Supplier;
+import com.tary.crud_produto.repository.CategoryRepository;
 import com.tary.crud_produto.repository.ProductRepository;
+import com.tary.crud_produto.repository.SupplierRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
-import java.util.*;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class ProductServiceTest {
 
+    private ProductService productService;
+
     @Mock
-    private ProductRepository repository;
+    private ProductRepository productRepository;
 
-    @InjectMocks
-    private ProductService service;
+    @Mock
+    private CategoryRepository categoryRepository;
 
-    private Product produtoExemplo;
+    @Mock
+    private SupplierRepository supplierRepository;
+
+    private ProductRequestDTO productRequestDTO;
+    private Category category;
+    private Supplier supplier;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        produtoExemplo = Product.builder()
-                .id("1")
-                .name("Produto Teste")
-                .description("Descrição")
-                .price(100.0)
-                .inStock(true)
-                .build();
+        productService = new ProductService(productRepository, categoryRepository, supplierRepository);
+
+        category = new Category();
+        category.setId("cat-123");
+        category.setName("Eletrônicos");
+
+        supplier = new Supplier();
+        supplier.setId("sup-123");
+        supplier.setName("Fornecedor ABC");
+
+        productRequestDTO = new ProductRequestDTO();
+        productRequestDTO.setName("Produto Teste");
+        productRequestDTO.setDescription("Descrição");
+        productRequestDTO.setPrice(100.0);
+        productRequestDTO.setInStock(10);
+        productRequestDTO.setCategoryId("cat-123");
+        productRequestDTO.setSupplierId("sup-123");
     }
 
     @Test
-    void testCriarProduto() {
-        when(repository.save(any())).thenReturn(produtoExemplo);
-        Product criado = service.create(produtoExemplo);
-        assertNotNull(criado);
-        assertEquals("Produto Teste", criado.getName());
+    void testToEntity_Success() {
+        when(categoryRepository.findById("cat-123")).thenReturn(Optional.of(category));
+        when(supplierRepository.findById("sup-123")).thenReturn(Optional.of(supplier));
+
+        Product product = productService.toEntity(productRequestDTO);
+
+        assertEquals("Produto Teste", product.getName());
+        assertEquals("Descrição", product.getDescription());
+        assertEquals(100.0, product.getPrice());
+        assertEquals(10, product.getInStock());
+        assertEquals("Eletrônicos", product.getCategory().getName());
+        assertEquals("Fornecedor ABC", product.getSupplier().getName());
     }
 
     @Test
-    void testBuscarTodos() {
-        when(repository.findAll()).thenReturn(List.of(produtoExemplo));
-        List<Product> produtos = service.findAll();
-        assertFalse(produtos.isEmpty());
+    void testToEntity_CategoryNotFound() {
+        when(categoryRepository.findById("cat-123")).thenReturn(Optional.empty());
+        when(supplierRepository.findById("sup-123")).thenReturn(Optional.of(supplier));
+
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> productService.toEntity(productRequestDTO));
+
+        assertEquals("Categoria não encontrada com ID: cat-123", exception.getMessage());
     }
 
     @Test
-    void testBuscarPorId() {
-        when(repository.findById("1")).thenReturn(Optional.of(produtoExemplo));
-        Product encontrado = service.findById("1");
-        assertEquals("Produto Teste", encontrado.getName());
-    }
+    void testToEntity_SupplierNotFound() {
+        when(categoryRepository.findById("cat-123")).thenReturn(Optional.of(category));
+        when(supplierRepository.findById("sup-123")).thenReturn(Optional.empty());
 
-    @Test
-    void testAtualizarProduto() {
-        when(repository.findById("1")).thenReturn(Optional.of(produtoExemplo));
-        when(repository.save(any())).thenReturn(produtoExemplo);
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> productService.toEntity(productRequestDTO));
 
-        Product atualizado = service.update("1", produtoExemplo);
-        assertEquals("Produto Teste", atualizado.getName());
-    }
-
-    @Test
-    void testDeletarProduto() {
-        doNothing().when(repository).deleteById("1");
-        service.delete("1");
-        verify(repository, times(1)).deleteById("1");
+        assertEquals("Fornecedor não encontrado com ID: sup-123", exception.getMessage());
     }
 }

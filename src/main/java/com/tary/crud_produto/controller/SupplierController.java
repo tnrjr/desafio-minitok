@@ -1,7 +1,10 @@
 package com.tary.crud_produto.controller;
 
+import com.tary.crud_produto.dto.SupplierRequestDTO;
+import com.tary.crud_produto.dto.SupplierResponseDTO;
 import com.tary.crud_produto.model.Supplier;
 import com.tary.crud_produto.repository.SupplierRepository;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,19 +21,25 @@ public class SupplierController {
     }
 
     @PostMapping
-    public ResponseEntity<Supplier> create(@RequestBody Supplier supplier) {
-        return ResponseEntity.ok(supplierRepository.save(supplier));
+    public ResponseEntity<SupplierResponseDTO> create(@Valid @RequestBody SupplierRequestDTO request) {
+        Supplier supplier = new Supplier();
+        supplier.setName(request.getName());
+        Supplier saved = supplierRepository.save(supplier);
+        return ResponseEntity.ok(toResponseDTO(saved));
     }
 
     @GetMapping
-    public ResponseEntity<List<Supplier>> findAll() {
-        return ResponseEntity.ok(supplierRepository.findAll());
+    public ResponseEntity<List<SupplierResponseDTO>> findAll() {
+        List<SupplierResponseDTO> suppliers = supplierRepository.findAll().stream()
+                .map(this::toResponseDTO)
+                .toList();
+        return ResponseEntity.ok(suppliers);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Supplier> findById(@PathVariable String id) {
+    public ResponseEntity<SupplierResponseDTO> findById(@PathVariable String id) {
         return supplierRepository.findById(id)
-                .map(ResponseEntity::ok)
+                .map(supplier -> ResponseEntity.ok(toResponseDTO(supplier)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
@@ -38,5 +47,12 @@ public class SupplierController {
     public ResponseEntity<Void> delete(@PathVariable String id) {
         supplierRepository.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private SupplierResponseDTO toResponseDTO(Supplier supplier) {
+        return SupplierResponseDTO.builder()
+                .id(supplier.getId())
+                .name(supplier.getName())
+                .build();
     }
 }

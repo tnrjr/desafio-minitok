@@ -9,28 +9,26 @@ import com.tary.crud_produto.repository.CategoryRepository;
 import com.tary.crud_produto.repository.ProductRepository;
 import com.tary.crud_produto.repository.SupplierRepository;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.swing.*;
 import java.util.List;
 
 @Service
 public class ProductService {
 
     private final ProductRepository repository;
+    private final CategoryRepository categoryRepository;
+    private final SupplierRepository supplierRepository;
 
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-    @Autowired
-    private SupplierRepository supplierRepository;
-
-    public ProductService (ProductRepository repository){
+    public ProductService(ProductRepository repository,
+                          CategoryRepository categoryRepository,
+                          SupplierRepository supplierRepository) {
         this.repository = repository;
+        this.categoryRepository = categoryRepository;
+        this.supplierRepository = supplierRepository;
     }
 
-    public Product create(Product product){
+    public Product create(Product product) {
         if (product.getName() == null || product.getName().trim().isEmpty()) {
             throw new BadRequestException("O nome é obrigatório.");
         }
@@ -52,8 +50,7 @@ public class ProductService {
                 .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado com ID: " + id));
     }
 
-
-    public Product update(String id, Product product){
+    public Product update(String id, Product product) {
         Product existing = findById(id);
 
         if (product.getPrice() != null && product.getPrice() < 0) {
@@ -67,7 +64,7 @@ public class ProductService {
         return repository.save(existing);
     }
 
-    public void delete(String id){
+    public void delete(String id) {
         repository.deleteById(id);
     }
 
@@ -82,7 +79,6 @@ public class ProductService {
                 .supplier(product.getSupplier() != null ? product.getSupplier().getName() : null)
                 .build();
     }
-
 
     public Product toEntity(ProductRequestDTO dto) {
         Product product = new Product();
@@ -100,6 +96,4 @@ public class ProductService {
 
         return product;
     }
-
-
 }

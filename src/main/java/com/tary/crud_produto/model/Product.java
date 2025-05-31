@@ -29,7 +29,7 @@ public class Product {
     @Positive
     private Double price;
 
-    @Min(1)
+    @Min(value = 0, message = "O estoque não pode ser negativo")
     private Integer inStock;
 
     @DBRef
