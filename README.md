@@ -251,3 +251,5 @@ Buscar todos os produtos
 - Configuração do Docker para MongoDB
 - Configuração Swagger para documentação interativa
 - Organização em camadas seguindo boas práticas
+
+Relatório: https://github.com/tnrjr/desafio-minitok/blob/main/RELATORIO.md
