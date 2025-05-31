@@ -2,6 +2,7 @@ package com.tary.crud_produto.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 @Data
@@ -14,5 +15,10 @@ public class ProductRequestDTO {
     @NotNull(message = "O preço é obrigatório")
     private Double price;
 
-    private Boolean inStock;
+    private Integer inStock;
+
+    private String categoryId;
+
+    private String supplierId;
 }
+
