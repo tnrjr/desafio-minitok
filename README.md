@@ -41,7 +41,7 @@ docker exec -it mongodb mongo
 - **Fornecedor (suppliers)**
   - Campos:
     - ``id`` (String)
-    - ``nam``e (String)
+    - ``name`` (String)
 
 **Relacionamentos**
 - Um Produto deve estar associado a uma Categoria (categoryId) e um Fornecedor (supplierId).
@@ -84,7 +84,7 @@ Criar Categoria (POST)
 }
 ```
 - **Respostas:**
-  - `200 OK`: Produto adicionado com sucesso.
+  - `201 OK`: Produto adicionado com sucesso.
   - `400 Bad Request`: Nome não informado.
 
 Criar Fornecedor (POST)
@@ -96,7 +96,7 @@ Criar Fornecedor (POST)
 }
 ```
 - **Respostas:**
-  - ``200 OK:`` Fornecedor criado com sucesso.
+  - ``201 OK:`` Fornecedor criado com sucesso.
   - ``400 Bad Request:`` Nome não informado.
 
 ### 2. Fluxo Completo para Criar Produto
@@ -214,25 +214,25 @@ Buscar todos os produtos
   - `200 OK`: Produto retornada.
   - `404 Not Found`: Produto não encontrado.
 
-### 6. Deletar Cliente (DELETE)
+### 6. Deletar Produto (DELETE)
 - **URL:** ```http://localhost:8080/api/products/{id}```
 - **Respostas:**
   - `204 OK`: Produto deletada.
   - `404 Not Found`: Produto não encontrado.
 
-### 7. Atualizar Cliente (PUT)
+### 7. Atualizar Produto (PUT)
 - **URL:** ```http://localhost:8080/api/products/{id}```
 ```json
 
 {
-    "id": "prod-123",
-    "name": "Notebook Gamer",
-    "description": "Alto desempenho para jogos",
-    "price": 4500.0,
-    "inStock": 10,
-    "category": "Eletrônicos",
-    "supplier": "Fornecedor ABCDE" <-- Adicionei DE
-  }
+  "name": "Notebook Gamer Atualizado",
+  "description": "Versão atualizada do produto",
+  "price": 4800.0,
+  "inStock": 15,
+  "categoryId": "cat-123",
+  "supplierId": "sup-123"
+}
+
 ```
 
 
